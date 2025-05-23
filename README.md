@@ -5,7 +5,7 @@ This repository contains a simple command line implementation of Klondike Solita
 ## Requirements
 
 - Python 3.11 or later
-- `pytest` for running the tests
+- Optional: `pytest` if you prefer running the tests with it
 
 ## Playing the Game
 
@@ -26,10 +26,15 @@ Example move: `move T7 FH` moves the top card from tableau pile 7 to the hearts 
 
 ## Running Tests
 
-Install `pytest` and run:
+Run the following command:
+
+```bash
+python3 -m unittest discover -s tests -p 'test_*.py' -v
+```
+
+This runs the unit tests located in the `tests` directory. If you have
+`pytest` installed you can still run the tests with:
 
 ```bash
 python3 -m pytest
 ```
-
-This will run the unit tests located in the `tests` directory.
