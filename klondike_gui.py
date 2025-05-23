@@ -5,6 +5,7 @@ CARD_WIDTH = 80
 CARD_HEIGHT = 120
 OFFSET_Y = 20
 BG_COLOR = (0, 128, 0)
+RESET_RECT = pygame.Rect(750, 20, 100, 40)
 
 class KlondikeGUI:
     def __init__(self):
@@ -14,6 +15,7 @@ class KlondikeGUI:
         self.font = pygame.font.SysFont(None, 24)
         self.game = Game()
         self.selected = None  # tuple(source, count)
+        self.selected_rect = None
 
     def draw_card(self, card, x, y):
         rect = pygame.Rect(x, y, CARD_WIDTH, CARD_HEIGHT)
@@ -48,6 +50,15 @@ class KlondikeGUI:
         ty = 160
         for i, pile in enumerate(self.game.tableau):
             self.draw_pile(pile, 20 + i * 100, ty)
+        if self.selected_rect:
+            pygame.draw.rect(self.screen, (255, 255, 0), self.selected_rect, 3)
+
+        pygame.draw.rect(self.screen, (200, 200, 200), RESET_RECT)
+        pygame.draw.rect(self.screen, (0, 0, 0), RESET_RECT, 2)
+        text = self.font.render('Reset', True, (0, 0, 0))
+        text_rect = text.get_rect(center=RESET_RECT.center)
+        self.screen.blit(text, text_rect)
+
         pygame.display.flip()
 
     def select_from_tableau(self, index, y):
@@ -63,13 +74,23 @@ class KlondikeGUI:
             return
         count = len(pile) - card_index
         self.selected = (f'T{index + 1}', count)
+        x = 20 + index * 100
+        y_pos = 160 + card_index * OFFSET_Y
+        height = CARD_HEIGHT + OFFSET_Y * (count - 1)
+        self.selected_rect = pygame.Rect(x, y_pos, CARD_WIDTH, height)
 
     def handle_click(self, pos):
         x, y = pos
+        if RESET_RECT.collidepoint(x, y):
+            self.game = Game()
+            self.selected = None
+            self.selected_rect = None
+            return
         # stock click
         if 20 <= x <= 20 + CARD_WIDTH and 20 <= y <= 20 + CARD_HEIGHT:
             self.game.draw()
             self.selected = None
+            self.selected_rect = None
             return
         # waste click
         if 120 <= x <= 120 + CARD_WIDTH and 20 <= y <= 20 + CARD_HEIGHT:
@@ -77,9 +98,11 @@ class KlondikeGUI:
                 src, count = self.selected
                 self.game.move(src, 'W', count)
                 self.selected = None
+                self.selected_rect = None
             else:
                 if self.game.waste.cards:
                     self.selected = ('W', 1)
+                    self.selected_rect = pygame.Rect(120, 20, CARD_WIDTH, CARD_HEIGHT)
             return
         # foundation clicks
         fx = 300
@@ -89,9 +112,11 @@ class KlondikeGUI:
                     src, count = self.selected
                     self.game.move(src, f'F{suit}', count)
                     self.selected = None
+                    self.selected_rect = None
                 else:
                     if self.game.foundations[suit].cards:
                         self.selected = (f'F{suit}', 1)
+                        self.selected_rect = pygame.Rect(fx, 20, CARD_WIDTH, CARD_HEIGHT)
                 return
             fx += 100
         # tableau clicks
@@ -102,6 +127,7 @@ class KlondikeGUI:
                     src, count = self.selected
                     self.game.move(src, f'T{i + 1}', count)
                     self.selected = None
+                    self.selected_rect = None
                 else:
                     self.select_from_tableau(i, y)
                 return
