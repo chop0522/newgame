@@ -1,6 +1,7 @@
 # Klondike Solitaire Game
 
-This repository contains a simple command line implementation of Klondike Solitaire written in Python.
+This repository contains a simple implementation of Klondike Solitaire written in Python.
+The original version runs in the command line and a basic GUI using `pygame` is also provided.
 
 ## Requirements
 
@@ -9,10 +10,16 @@ This repository contains a simple command line implementation of Klondike Solita
 
 ## Playing the Game
 
-Run the following command:
+Run the following command for the command line version:
 
 ```bash
 python3 klondike.py
+```
+
+To play the GUI version (requires `pygame`), run:
+
+```bash
+python3 klondike_gui.py
 ```
 
 You will see the game state printed in the terminal. Use the following commands:
