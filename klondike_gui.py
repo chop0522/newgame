@@ -16,6 +16,7 @@ class KlondikeGUI:
         self.game = Game()
         self.selected = None  # tuple(source, count)
         self.selected_rect = None
+        self.win = False
 
     def draw_card(self, card, x, y):
         rect = pygame.Rect(x, y, CARD_WIDTH, CARD_HEIGHT)
@@ -59,6 +60,17 @@ class KlondikeGUI:
         text_rect = text.get_rect(center=RESET_RECT.center)
         self.screen.blit(text, text_rect)
 
+        score_surface = self.font.render(f"Score: {self.game.score}", True, (255, 255, 255))
+        self.screen.blit(score_surface, (20, 140))
+
+        if self.win:
+            overlay = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 150))
+            self.screen.blit(overlay, (0, 0))
+            win_text = self.font.render('You Won!', True, (255, 255, 0))
+            win_rect = win_text.get_rect(center=self.screen.get_rect().center)
+            self.screen.blit(win_text, win_rect)
+
         pygame.display.flip()
 
     def select_from_tableau(self, index, y):
@@ -85,12 +97,14 @@ class KlondikeGUI:
             self.game = Game()
             self.selected = None
             self.selected_rect = None
+            self.win = False
             return
         # stock click
         if 20 <= x <= 20 + CARD_WIDTH and 20 <= y <= 20 + CARD_HEIGHT:
             self.game.draw()
             self.selected = None
             self.selected_rect = None
+            self.win = self.game.is_won()
             return
         # waste click
         if 120 <= x <= 120 + CARD_WIDTH and 20 <= y <= 20 + CARD_HEIGHT:
@@ -99,6 +113,7 @@ class KlondikeGUI:
                 self.game.move(src, 'W', count)
                 self.selected = None
                 self.selected_rect = None
+                self.win = self.game.is_won()
             else:
                 if self.game.waste.cards:
                     self.selected = ('W', 1)
@@ -113,6 +128,7 @@ class KlondikeGUI:
                     self.game.move(src, f'F{suit}', count)
                     self.selected = None
                     self.selected_rect = None
+                    self.win = self.game.is_won()
                 else:
                     if self.game.foundations[suit].cards:
                         self.selected = (f'F{suit}', 1)
@@ -128,6 +144,7 @@ class KlondikeGUI:
                     self.game.move(src, f'T{i + 1}', count)
                     self.selected = None
                     self.selected_rect = None
+                    self.win = self.game.is_won()
                 else:
                     self.select_from_tableau(i, y)
                 return
@@ -141,6 +158,8 @@ class KlondikeGUI:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     self.handle_click(event.pos)
+            if not self.win and self.game.is_won():
+                self.win = True
             self.render()
             clock.tick(30)
         pygame.quit()
