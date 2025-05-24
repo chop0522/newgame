@@ -45,6 +45,7 @@ class Game:
         self.waste = Pile()
         self.foundations: Dict[str, Pile] = {suit: Pile() for suit in SUITS}
         self.tableau: List[List[Card]] = [[] for _ in range(7)]
+        self.score = 0
         self.setup()
 
     def setup(self):
@@ -68,6 +69,7 @@ class Game:
                 card.face_up = False
                 self.stock.push(card)
             print("Recycling waste to stock")
+            self.score -= 15
             return
         card = self.stock.pop()
         card.face_up = True
@@ -91,6 +93,7 @@ class Game:
         if src_pile is None or dst_pile is None:
             print("Invalid piles")
             return False
+        flipped = False
         if source.startswith('T') and count > 1:
             movable = src_pile[src_index][-count:]
             if not all(c.face_up for c in movable):
@@ -120,8 +123,20 @@ class Game:
                 src_pile[src_index].append(card)
                 return False
         if source.startswith('T') and src_pile[src_index]:
-            src_pile[src_index][-1].face_up = True
+            if not src_pile[src_index][-1].face_up:
+                src_pile[src_index][-1].face_up = True
+                flipped = True
+        if target.startswith('F'):
+            self.score += 10
+        else:
+            self.score += 5
+        if flipped:
+            self.score += 5
         return True
+
+    def is_won(self) -> bool:
+        """Return True when all foundation piles contain 13 cards."""
+        return all(len(self.foundations[suit].cards) == 13 for suit in SUITS)
 
     def get_pile(self, name: str) -> Tuple[Optional[List], Optional[int]]:
         name = name.upper()
@@ -145,6 +160,7 @@ class Game:
         print("Tableau:")
         for i, pile in enumerate(self.tableau):
             print(i + 1, ' '.join(str(c) for c in pile))
+        print("Score:", self.score)
 
 
 def main():

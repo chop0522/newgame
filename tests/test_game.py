@@ -1,5 +1,5 @@
 import unittest
-from klondike import Game, Card
+from klondike import Game, Card, RANKS, SUITS, Pile
 
 
 class GameTest(unittest.TestCase):
@@ -26,6 +26,35 @@ class GameTest(unittest.TestCase):
         self.assertEqual(len(game.stock.cards), initial_stock - 1)
         self.assertEqual(len(game.waste.cards), 1)
         self.assertTrue(game.waste.cards[-1].face_up)
+
+    def test_scoring_and_win(self):
+        game = Game()
+        game.stock = Pile()
+        game.waste = Pile()
+        game.tableau = [[] for _ in range(7)]
+        game.foundations = {suit: Pile() for suit in SUITS}
+
+        game.waste.push(Card('5', 'C', True))
+        game.tableau[0].append(Card('6', 'D', True))
+        game.move('W', 'T1')
+        self.assertEqual(game.score, 5)
+
+        game.tableau[1] = [Card('10', 'S', False), Card('9', 'H', True)]
+        game.tableau[2] = [Card('10', 'C', True)]
+        game.move('T2', 'T3')
+        self.assertEqual(game.score, 15)
+
+        game.tableau[3] = [Card('A', 'H', True)]
+        game.move('T4', 'FH')
+        self.assertEqual(game.score, 25)
+
+        game.draw()  # recycle waste
+        self.assertEqual(game.score, 10)
+
+        for suit in SUITS:
+            game.foundations[suit].cards = [Card(rank, suit, True) for rank in RANKS]
+
+        self.assertTrue(game.is_won())
 
 
 if __name__ == '__main__':
