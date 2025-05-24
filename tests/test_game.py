@@ -56,6 +56,17 @@ class GameTest(unittest.TestCase):
 
         self.assertTrue(game.is_won())
 
+    def test_move_same_pile(self):
+        game = Game()
+        initial_score = game.score
+        initial_pile = list(game.tableau[0])
+
+        result = game.move('T1', 'T1')
+
+        self.assertFalse(result)
+        self.assertEqual(game.tableau[0], initial_pile)
+        self.assertEqual(game.score, initial_score)
+
 
 if __name__ == '__main__':
     unittest.main()

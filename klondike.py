@@ -93,6 +93,9 @@ class Game:
         if src_pile is None or dst_pile is None:
             print("Invalid piles")
             return False
+        if src_pile[src_index] is dst_pile[dst_index]:
+            print("Cannot move to the same pile")
+            return False
         flipped = False
         if source.startswith('T') and count > 1:
             movable = src_pile[src_index][-count:]
